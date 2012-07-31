@@ -10,8 +10,18 @@ module GithubDeprecations
     config = Config.new(options)
     blk.call(config) if blk
     config
+  rescue ArgumentError => e
+    $stderr.puts "Missing config parameters for GithubDeprecations"
+    Noop.new
   end
   module_function :configure
+
+  # All methods are noop and returns itself
+  class Noop
+    def method_missing(name, *args, &block)
+      self
+    end
+  end
 
   class Config < Hashie::Dash  # add Dash#verify! so that it's not checked on initialization
     property :login,       :required => true
