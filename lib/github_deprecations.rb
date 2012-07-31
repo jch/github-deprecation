@@ -19,7 +19,6 @@ module GithubDeprecations
     property :repo,        :required => true
     property :subscribe,   :default => %r{^deprecation}
     property :labels,      :default => ['deprecations']
-    property :queue,       :default => 'deprecations'
 
     # Register to intercept deprecation warnings.
     #
@@ -38,7 +37,7 @@ module GithubDeprecations
   end
 
   class Worker
-    @queue = :deprecations  # too lazy to make this configurable now
+    @queue = :deprecations
 
     def self.perform(options, event_params)
       new(options).submit_issue!(event_params)

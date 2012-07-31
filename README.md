@@ -29,8 +29,7 @@ GithubDeprecations.configure({
   :repo        => 'org/repo-name',
 
   :subscribe   => %r{^deprecation},  # optional: string or regex of deprecation types
-  :labels      => ['deprecations'],  # optional: labels to apply to created issues
-  :queue       => 'deprecations'     # optional: resque queue to send warnings
+  :labels      => ['deprecations']   # optional: labels to apply to created issues
 }).register!
 ```
 
