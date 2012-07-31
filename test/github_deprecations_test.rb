@@ -1,36 +1,42 @@
 require 'test_helper'
 
-class GithubDeprecationsTest < Test::Unit::TestCase
+class GithubDeprecations::WorkerTest < Test::Unit::TestCase
   def setup
-    Resque.mock!
-    Mocha::Mockery.instance.stubba.unstub_all
-    @app = GithubDeprecations.configure({
+    @worker = GithubDeprecations::Worker.new({
       :login       => 'jch',
       :oauth_token => 'oauth2token',
       :repo        => 'org/repo-name',
+      :labels      => []
     })
-    @app.register!
-  end
-
-  def teardown
-    @app.reset!
-    mocha_teardown
-    Mocha::Mockery.instance.stubba.unstub_all
+    # name, start, ending, transaction_id, payload. see ActiveSupport::Notifications::Event
+    @event = [
+      'deprecation.rails',
+      '2012-07-27 20:33:56 -0700',
+      '2012-07-27 20:34:03 -0700',
+      '13',
+      {
+        :message   => "DEPRECATION WARNING: Ooga Booga. (called from irb_binding at (irb):1)",
+        :callstack => ['stack1', 'stack2']
+      }
+    ]
   end
 
   def test_create_issue
-    GithubDeprecations::Worker.any_instance.stubs(:find_issue).returns(nil)
-    GithubDeprecations::Worker.any_instance.expects(:create_issue)
-
-    ActiveSupport::Deprecation.warn "Roh oh"
+    # name, start, ending, transaction_id, payload
+    @worker.stubs(:find_issue).returns(nil)
+    @worker.expects(:create_issue)
+    @worker.submit_issue!(@event)
   end
 
-  # how to mocha unstub all?
-  def pending_test_update_existing_issue
+  def test_update_existing_issue
     issue = stub(:number => '5')
-    GithubDeprecations::Worker.any_instance.stubs(:find_issue).returns(issue)
-    GithubDeprecations::Worker.any_instance.expects(:update_issue).with('5', any_parameters, any_parameters)
+    @worker.stubs(:find_issue).returns(issue)
+    @worker.expects(:update_issue).with('5', any_parameters, any_parameters)
+    @worker.submit_issue!(@event)
+  end
 
-    ActiveSupport::Deprecation.warn "Roh oh"
+  def test_title_normalization
+    normalized = @worker.normalize_title("DEPRECATION WARNING: Ooga Booga. (called from irb_binding at (irb):1)")
+    assert_equal "Ooga Booga.", normalized
   end
 end
