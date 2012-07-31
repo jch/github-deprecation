@@ -1,6 +1,6 @@
 # GithubDeprecations
 
-Create GitHub issues for ActiveSupport::Deprecation messages.
+Create GitHub issues for `ActiveSupport::Deprecation` messages.
 
 ## Installation
 
