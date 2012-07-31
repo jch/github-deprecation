@@ -18,7 +18,7 @@ module GithubDeprecations
     property :oauth_token, :required => true
     property :repo,        :required => true
     property :subscribe,   :default => %r{^deprecation}
-    property :labels,      :default => []  # TODO: create missing labels
+    property :labels,      :default => ['deprecations']
     property :queue,       :default => 'deprecations'
 
     # Register to intercept deprecation warnings.
@@ -40,8 +40,8 @@ module GithubDeprecations
   class Worker
     @queue = :deprecations  # too lazy to make this configurable now
 
-    def self.perform(options, event_hash)
-      new(options).submit_issue!(event_hash)
+    def self.perform(options, event_params)
+      new(options).submit_issue!(event_params)
     end
 
     def initialize(options)
@@ -53,20 +53,30 @@ module GithubDeprecations
     # if we wanted to be fancy
     # calculating an edit-distance probably removes a lot of duplicates
     # test: when title is too long, then what? what about sha-ing the title and prefixing that to the title?
-    def submit_issue!(event_hash)
+    def submit_issue!(event_params)
       # datetime objects are being serialized to string?
-      event_hash[1] = DateTime.parse(event_hash[1])
-      event_hash[2] = DateTime.parse(event_hash[2])
+      event_params[1] = DateTime.parse(event_params[1])
+      event_params[2] = DateTime.parse(event_params[2])
 
-      event   = ActiveSupport::Notifications::Event.new(*event_hash)
+      event   = ActiveSupport::Notifications::Event.new(*event_params)
       payload = Hashie::Mash.new(event.payload)
       title   = normalize_title(payload[:message])
       body    = "```\n" + payload[:callstack].join("\n") + "\n```\n" # ghetto markdown-ify
 
+      create_labels
       match = find_issue(title)
       res = match ?
         update_issue(match.number, title, body) :
         create_issue(title, body)
+    end
+
+    # Create any missing issue labels.
+    def create_labels
+      @options.labels.each do |label|
+        client.add_label(@options.repo, label)
+      end
+    rescue Octokit::UnprocessableEntity => e
+      # assume label already exists and do nothing
     end
 
     # Find an existing issue with the same message.
