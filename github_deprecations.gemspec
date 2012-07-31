@@ -8,8 +8,8 @@ Gem::Specification.new do |gem|
   gem.version       = GithubDeprecations::VERSION
   gem.authors       = ["Jerry Cheung"]
   gem.email         = ["jch@whatcodecraves.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
+  gem.description   = %q{Create GitHub issues based on ActiveSupport deprecation errors}
+  gem.summary       = %q{Create GitHub issues based on ActiveSupport deprecation errors}
   gem.homepage      = ""
 
   gem.files         = `git ls-files`.split($/)
@@ -20,8 +20,8 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'activesupport',   '~> 3'
   gem.add_dependency 'octokit',         '~> 1.7'
   gem.add_dependency 'resque',          '~> 1.19'
-  gem.add_dependency 'hashie'
+  gem.add_dependency 'hashie',          '~> 1'
 
-  gem.add_development_dependency 'mocha'
+  gem.add_development_dependency 'mocha',       '~> 0.12'
   gem.add_development_dependency 'resque-mock', '~> 0.1'
 end
