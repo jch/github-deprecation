@@ -63,6 +63,10 @@ module GitHub
       @configured
     end
 
+    def registered?
+      @registered
+    end
+
     # Remove any queued deprecation messages, revert to default reporting
     # behavior.
     def reset!
@@ -81,7 +85,12 @@ module GitHub
 
       reporter_instance = self.config[:reporter_class].new(self.config)
       @queue.start! do |e|
-        reporter_instance.submit_issue!(e)
+        begin
+          reporter_instance.submit_issue!(e)
+        rescue => e
+          warn "error submitting issue: #{e.message}"
+          reset!
+        end
       end
     end
 

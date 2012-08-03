@@ -44,4 +44,16 @@ class GitHub::DeprecationTest < Test::Unit::TestCase
     subject.configure(valid_config)
     assert subject.configured?, "valid config"
   end
+
+  def test_start_reporting_error
+    subject.queue.enqueue 'unicorns'
+    subject.configure(:reporter => :error_reporter)
+    output = capture_stderr do
+      subject.start_reporting!
+    end
+    assert_match /Mock error/, output
+    assert !subject.registered?
+
+    subject.configure(:reporter => :reporter)
+  end
 end

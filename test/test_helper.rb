@@ -23,3 +23,12 @@ def valid_config(options = {})
     :labels      => ['deprecations']
   }.merge(options)
 end
+
+# Raises an exception when submitting an issue
+module GitHub::Deprecation
+  class ErrorReporter < Reporter
+    def submit_issue!(event_args)
+      raise RuntimeError.new("Mock error")
+    end
+  end
+end
