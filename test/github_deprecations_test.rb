@@ -15,11 +15,26 @@ class GithubDeprecationsTest < Test::Unit::TestCase
     output = capture_stderr do
       GithubDeprecations.configure
     end
-    assert_equal output, "Missing config parameters for GithubDeprecations\n"
+    assert_equal output, "WARNING: Missing config parameters for GithubDeprecations\n"
   end
 
   def test_configure_fails_noop
     # shouldn't raise no method error
-    GithubDeprecations.configure.register!
+    capture_stderr do
+      GithubDeprecations.configure.register!
+    end
+  end
+
+  def test_redis_unavailable_resets
+    Resque.expects(:enqueue).raises(Errno::ECONNREFUSED)
+    output = capture_stderr do
+      GithubDeprecations.configure({
+        :login       => 'some_login',
+        :oauth_token => 'some_token',
+        :repo        => 'some/repo'
+      }).register!
+      ActiveSupport::Deprecation.warn "Roh oh"
+    end
+    assert_equal output, "WARNING: Unable to connect to redis for GithubDeprecations\n"
   end
 end

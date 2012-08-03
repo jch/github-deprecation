@@ -11,7 +11,7 @@ module GithubDeprecations
     blk.call(config) if blk
     config
   rescue ArgumentError => e
-    $stderr.puts "Missing config parameters for GithubDeprecations"
+    $stderr.puts "WARNING: Missing config parameters for GithubDeprecations"
     Noop.new
   end
   module_function :configure
@@ -35,13 +35,21 @@ module GithubDeprecations
     # For each deprecation, enqueue a background job
     # to create or update an issue.
     def register!
+      @original_behavior = ActiveSupport::Deprecation.behavior
       ActiveSupport::Deprecation.behavior = :notify
       @subscriber = ActiveSupport::Notifications.subscribe(@subscribe) do |*args|
-        Resque.enqueue Worker, self, args
+        begin
+          Resque.enqueue Worker, self, args
+        rescue Errno::ECONNREFUSED => e
+          # unable to connect to redis, revert to default behavior
+          $stderr.puts "WARNING: Unable to connect to redis for GithubDeprecations"
+          reset!
+        end
       end
     end
 
     def reset!
+      ActiveSupport::Deprecation.behavior = @original_behavior if @original_behavior
       ActiveSupport::Notifications.unsubscribe(@subscriber) if @subscriber
     end
   end
