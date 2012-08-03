@@ -4,20 +4,18 @@ require 'test_helper'
 class IntegrationTest < Test::Unit::TestCase
   if ENV['GH_LOGIN'] && ENV['GH_OAUTH_TOKEN']
     def setup
-      @test_repo = "github_deprecations_test_#{Time.now.to_i + rand(1000)}"
+      @test_repo = "github-deprecation_test_#{Time.now.to_i + rand(1000)}"
       @user_repo = [ENV['GH_LOGIN'], @test_repo].join('/')
 
       Resque.mock!
-      @app = GithubDeprecations.configure({
+      GitHub::Deprecation.reset!
+      GitHub::Deprecation.configure({
         :login       => ENV['GH_LOGIN'],
         :oauth_token => ENV['GH_OAUTH_TOKEN'],
         :repo        => @user_repo
       })
-      @app.register!
-    end
-
-    def teardown
-      @app.reset!
+      GitHub::Deprecation.register!
+      GitHub::Deprecation.start_reporting!
     end
 
     def with_repo(&blk)

@@ -1,4 +1,4 @@
-# GithubDeprecations
+# GitHub::Deprecation
 
 Create GitHub issues for `ActiveSupport::Deprecation` messages.
 
@@ -6,7 +6,7 @@ Create GitHub issues for `ActiveSupport::Deprecation` messages.
 
 Add this line to your application's Gemfile:
 
-    gem 'github_deprecations'
+    gem 'github-deprecation'
 
 And then execute:
 
@@ -14,24 +14,42 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install github_deprecations
+    $ gem install github-deprecation
 
 ## Usage
 
-To catch as many deprecations as possible, require this as early as possible.
+With Rails 3, add an initializer with:
 
 ```ruby
-require 'github_deprecations'
-
-GithubDeprecations.configure({
+GitHub::Deprecation.configure({
   :login       => 'jch',
   :oauth_token => 'oauth2token',
   :repo        => 'org/repo-name',
-
-  :subscribe   => %r{^deprecation},  # optional: string or regex of deprecation types
-  :labels      => ['deprecations']   # optional: labels to apply to created issues
-}).register!
+})
 ```
+
+To generate an oauth token:
+
+```
+gh-oauth-token
+```
+
+To use with any general Ruby project:
+
+```ruby
+require 'github-deprecation'
+Github::Deprecation.register!  # require this as early as possible
+
+GitHub::Deprecation.configure({
+  :login       => 'jch',
+  :oauth_token => 'oauth2token',
+  :repo        => 'org/repo-name'
+})
+
+GitHub::Deprecation.start_reporting!
+```
+
+If you're using Resque, this gem will submit issues in the background.
 
 ## Development
 
@@ -51,6 +69,8 @@ To run integration tests, you need to specify two environment variables:
 
 ## TODO
 
+* lazy load requires
+* rename to github-deprecation. Note singular spelling to match with ActiveSupport::Deprecation
 * better way to test with octokit
 * pluggable background job backends. Would be nice to use Rails Queue API
 * bin/github-access-token prompts for user/pass and returns an access token
@@ -59,3 +79,7 @@ To run integration tests, you need to specify two environment variables:
 * optionally also log the deprecation
 * error handling
 * if issue is already closed, add a comment and re-open it?
+
+* if we wanted to be fancy
+* calculating an edit-distance probably removes a lot of duplicates
+* test: when title is too long, then what? what about sha-ing the title and prefixing that to the title?
