@@ -6,7 +6,7 @@ class GitHub::DeprecationTest < Test::Unit::TestCase
   end
 
   def setup
-    subject.reset!
+    subject.reset!(true)
   end
 
   def test_behavior_default
@@ -53,7 +53,5 @@ class GitHub::DeprecationTest < Test::Unit::TestCase
     end
     assert_match /Mock error/, output
     assert !subject.registered?
-
-    subject.configure(:reporter => :reporter)
   end
 end
