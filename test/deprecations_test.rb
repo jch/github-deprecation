@@ -40,13 +40,13 @@ class GitHub::DeprecationTest < Test::Unit::TestCase
   end
 
   def test_configure_reporter
-    subject.configure({:reporter => :resque_reporter})
+    subject.configure(valid_config.merge({:reporter => :resque_reporter}))
     assert_equal GitHub::Deprecation::ResqueReporter, subject.config[:reporter_class]
   end
 
   def test_configure_invalid_reporter
     capture_stderr {
-      subject.configure({:reporter => :foo})
+      subject.configure(valid_config.merge({:reporter => :foo}))
     }
     assert !subject.configured?
   end
