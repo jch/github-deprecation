@@ -33,7 +33,7 @@ module GitHub
 
     # Register to intercept deprecation warnings.
     #
-    # Deprecation messages are queued up until #start! is called.
+    # Deprecation messages are queued up until #start_reporting! is called.
     def register!
       return if @registered
       @registered = true
@@ -44,9 +44,14 @@ module GitHub
       end
     end
 
-    # Configure GitHub credentials and optional issue labels
+    # Configure credentials and behavior
     #
-    #
+    # :login       - required. GitHub user login
+    # :oauth_token - required. OAuth2 access token. Use `github-deprecation-auth` command to generate.
+    # :repo        - required. Repository including organization or user. e.g. 'github/github-deprecation'
+    # :labels      - list of label strings to apply to issues
+    # :reporter    - symbol of reporter to use. `:reporter` submits in foreground, `:resque_reporter`
+    #                submits in background
     def configure(options = {})
       self.config.merge!(options.symbolize_keys)
       self.config[:reporter_class] = GitHub::Deprecation.const_get(self.config[:reporter].to_s.camelize)
@@ -58,7 +63,6 @@ module GitHub
       @configured = false
     end
 
-    # Verify configuration is valid
     def configured?
       @configured
     end
@@ -80,6 +84,8 @@ module GitHub
       $stderr.puts("WARNING: GitHub::Deprecation " + message)
     end
 
+    # Submit any queued deprecations as issues. All future queued
+    # deprecations are immediately submitted.
     def start_reporting!
       return warn("missing required config") unless configured?
 
@@ -94,6 +100,7 @@ module GitHub
       end
     end
 
+    # Pause submitting issues.
     def pause_reporting!
       @queue.pause!
     end
