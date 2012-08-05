@@ -19,6 +19,7 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'activesupport',   '~> 3'
   gem.add_dependency 'octokit',         '~> 1.7'
+  gem.add_dependency 'highline',        '~> 1.6'
 
   gem.add_development_dependency 'mocha',       '~> 0.12'
   gem.add_development_dependency 'resque-mock', '~> 0.1'

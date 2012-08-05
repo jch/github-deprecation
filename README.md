@@ -31,7 +31,7 @@ GitHub::Deprecation.configure({
 To generate an oauth token:
 
 ```
-gh-oauth-token
+github-deprecation-auth
 ```
 
 To use with any general Ruby project:
