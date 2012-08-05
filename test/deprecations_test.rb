@@ -68,6 +68,7 @@ class GitHub::DeprecationTest < Test::Unit::TestCase
   end
 
   def test_start_reporting_error
+    subject.register!
     subject.queue.enqueue 'unicorns'
     subject.configure(valid_config.merge(:reporter => :error_reporter))
     output = capture_stderr do
