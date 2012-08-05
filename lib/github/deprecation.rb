@@ -103,7 +103,7 @@ module GitHub
       return warn("missing required config") unless configured?
 
       reporter_instance = self.config[:reporter_class].new(self.config)
-      @queue.start! do |e|
+      queue.start! do |e|
         begin
           reporter_instance.submit_issue!(e)
         rescue => e
@@ -115,7 +115,7 @@ module GitHub
 
     # Pause submitting issues.
     def pause_reporting!
-      @queue.pause!
+      queue.pause!
     end
   end
 end
