@@ -54,9 +54,14 @@ module GitHub
     #                submits in background
     def configure(options = {})
       self.config.merge!(options.symbolize_keys)
-      self.config[:reporter_class] = GitHub::Deprecation.const_get(self.config[:reporter].to_s.camelize)
+
+      # Default reporter based on availability of resque
+      self.config[:reporter] ||= defined?(Resque) ? :resque_reporter : :reporter
+      reporter_klass = self.config[:reporter].to_s.camelize
+      self.config[:reporter_class] = GitHub::Deprecation.const_get(reporter_klass)
 
       @configured = ([:login, :oauth_token, :repo] & self.config.keys).size == 3
+
       self.config
     rescue NameError => e
       warn "unknown reporter #{self.config[:reporter]}"

@@ -30,7 +30,11 @@ class GitHub::DeprecationTest < Test::Unit::TestCase
   end
 
   def test_defaults
+    Object.send(:remove_const, :Resque) rescue nil
+    subject.configure
     assert_equal ['deprecations'], subject.config[:labels]
+    assert_equal :reporter, subject.config[:reporter]
+    require 'resque'
   end
 
   def test_configure_override
@@ -49,6 +53,12 @@ class GitHub::DeprecationTest < Test::Unit::TestCase
       subject.configure(valid_config.merge({:reporter => :foo}))
     }
     assert !subject.configured?
+  end
+
+  def test_default_resque_reporter
+    assert Object.const_get(:Resque)
+    subject.configure
+    subject.config[:reporter] = :resque_reporter
   end
 
   def test_configured
