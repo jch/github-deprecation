@@ -99,6 +99,7 @@ module GitHub
     # Submit any queued deprecations as issues. All future queued
     # deprecations are immediately submitted.
     def start_reporting!
+      return unless registered?
       return warn("missing required config") unless configured?
 
       reporter_instance = self.config[:reporter_class].new(self.config)
