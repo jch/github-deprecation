@@ -39,6 +39,15 @@ class GitHub::DeprecationTest < Test::Unit::TestCase
     assert_equal 'baz', subject.config[:foo]
   end
 
+  def test_configure_reporter
+    assert_equal GitHub::Deprecation::ResqueReporter, subject.config[:reporter_class]
+
+  def test_configure_invalid_reporter
+      subject.configure({:reporter => :foo})
+    }
+    assert !subject.configured?
+  end
+
   def test_configured
     assert !subject.configured?, "missing config params"
     subject.configure(valid_config)
