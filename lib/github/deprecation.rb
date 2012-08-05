@@ -58,7 +58,7 @@ module GitHub
 
       @configured = ([:login, :oauth_token, :repo] & self.config.keys).size == 3
       self.config
-    rescue LoadError => e
+    rescue NameError => e
       warn "unknown reporter #{self.config[:reporter]}"
       @configured = false
     end
