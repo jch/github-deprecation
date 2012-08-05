@@ -7,7 +7,6 @@ class IntegrationTest < Test::Unit::TestCase
       @test_repo = "github-deprecation_test_#{Time.now.to_i + rand(1000)}"
       @user_repo = [ENV['GH_LOGIN'], @test_repo].join('/')
 
-      Resque.mock!
       GitHub::Deprecation.reset!
       GitHub::Deprecation.configure({
         :login       => ENV['GH_LOGIN'],

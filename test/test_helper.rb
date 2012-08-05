@@ -6,6 +6,8 @@ require 'mocha'
 require 'resque/mock'
 require 'debugger'
 
+Resque.mock!
+
 def capture_stderr(&blk)
   io = StringIO.new
   old_io, $stderr = $stderr, io
