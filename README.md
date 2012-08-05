@@ -34,6 +34,10 @@ To generate an oauth token:
 github-deprecation-auth
 ```
 
+The generated token will have access to your private repositories and can
+create issues. You can [revoke the tokens
+here](https://github.com/settings/applications).
+
 To use with any general Ruby project:
 
 ```ruby
