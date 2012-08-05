@@ -10,12 +10,12 @@ module GitHub
     autoload :ResqueReporter, 'github/deprecation/resque_reporter'
 
     @original_behavior ||= ActiveSupport::Deprecation.behavior
+    DEFAULT_CONFIG     ||= {
+      :labels => ['deprecations']
+    }
 
     def config
-      @config ||= {
-        :labels   => ['deprecations'],
-        :reporter => :reporter
-      }
+      @config ||= DEFAULT_CONFIG.clone
     end
     attr_writer :config
 
@@ -73,11 +73,18 @@ module GitHub
 
     # Remove any queued deprecation messages, revert to default reporting
     # behavior.
-    def reset!
+    #
+    # Passing true will also reset the configuration
+    def reset!(reset_config=false)
       queue.clear
       ActiveSupport::Deprecation.behavior = @original_behavior if @original_behavior
       ActiveSupport::Notifications.unsubscribe(@subscriber) if @subscriber
       @registered = false
+
+      if reset_config
+        self.config = DEFAULT_CONFIG.dup
+        @configured = false
+      end
     end
 
     def warn(message)
