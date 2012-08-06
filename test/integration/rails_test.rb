@@ -7,10 +7,10 @@ class GitHub::Deprecation::RailsTest < Test::Unit::TestCase
     GitHub::Deprecation.configure(:reporter => :null_reporter)
 
     output = capture_stderr do
-      require File.expand_path('../app/config/environment', __FILE__)
+      require File.expand_path('../app/config/application', __FILE__)
     end
 
     assert_equal "", output
-    assert_equal 2, GitHub::Deprecation::NullReporter.events.size
+    assert_equal 3, GitHub::Deprecation::NullReporter.events.size
   end
 end

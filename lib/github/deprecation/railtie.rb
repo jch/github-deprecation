@@ -8,7 +8,7 @@ begin
   module GitHub::Deprecation
     class Railtie < Rails::Railtie
       config.to_prepare do
-        ActiveSupport::Deprecation.behavior = :notify
+        GitHub::Deprecation.behavior = :notify
 
         # Starts reporting, warns if misconfigured.
         GitHub::Deprecation.start_reporting!
