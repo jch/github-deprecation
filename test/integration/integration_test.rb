@@ -7,7 +7,7 @@ class IntegrationTest < Test::Unit::TestCase
       @test_repo = "github-deprecation_test_#{Time.now.to_i + rand(1000)}"
       @user_repo = [ENV['GH_LOGIN'], @test_repo].join('/')
 
-      GitHub::Deprecation.reset!
+      GitHub::Deprecation.reset!(true)
       GitHub::Deprecation.configure({
         :login       => ENV['GH_LOGIN'],
         :oauth_token => ENV['GH_OAUTH_TOKEN'],
