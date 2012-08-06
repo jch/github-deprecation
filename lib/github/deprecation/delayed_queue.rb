@@ -7,7 +7,7 @@ module GitHub::Deprecation
     def start!(&callback)
       @started  = true
       @callback = callback
-      each {|e| @callback.call(e)} if @callback
+      process!
     end
 
     def pause!
@@ -16,7 +16,12 @@ module GitHub::Deprecation
 
     def enqueue(*items)
       self.push(*items)
-      items.each {|e| @callback.call(e)} if @started && @callback
+      process!
+    end
+
+    private
+    def process!
+      shift(size).each {|e| @callback.call(e)} if @started && @callback
     end
   end
 end
