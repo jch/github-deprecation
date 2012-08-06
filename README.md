@@ -89,17 +89,10 @@ rake test:integration
 
 ## TODO
 
-* lazy load requires
-* rename to github-deprecation. Note singular spelling to match with ActiveSupport::Deprecation
 * better way to test with octokit
-* pluggable background job backends. Would be nice to use Rails Queue API
-* bin/github-access-token prompts for user/pass and returns an access token
 * integrate with haystack
 * smarter search
 * optionally also log the deprecation
-* error handling
 * if issue is already closed, add a comment and re-open it?
-
-* if we wanted to be fancy
 * calculating an edit-distance probably removes a lot of duplicates
 * test: when title is too long, then what? what about sha-ing the title and prefixing that to the title?
