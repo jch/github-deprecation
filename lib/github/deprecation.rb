@@ -121,4 +121,4 @@ module GitHub
   end
 end
 
-require 'github/deprecation/railtie' if defined?(Rails)
+require 'github/deprecation/railtie'

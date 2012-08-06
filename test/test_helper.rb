@@ -33,4 +33,17 @@ module GitHub::Deprecation
       raise RuntimeError.new("Mock error")
     end
   end
+
+  # Reporter that tracks what events have been submitted, but doesn't create
+  # any issues. Used for testing.
+  class NullReporter < Reporter
+    class << self
+      attr_accessor :events
+    end
+
+    def submit_issue!(event_hash)
+      self.class.events ||= []
+      self.class.events << event_hash
+    end
+  end
 end
