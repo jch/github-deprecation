@@ -2,6 +2,12 @@
 
 Create GitHub issues for `ActiveSupport::Deprecation` messages.
 
+Tired of seeing deprecation messages spam your development and test logs? Take
+action and turn that log spam into useful GitHub issues. This gem works by
+subscribing to notifications from `ActiveSupport::Deprecation` and posting
+them as new issues in your repository.
+
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -18,9 +24,26 @@ Or install it yourself as:
 
 ## Usage
 
-Requiring github/deprecation as early as possible allows it to capture more
-deprecation warnings. With Rails 3, in `config/application.rb`, add the
-following line right after requiring boot.rb:
+github-deprecation is setup in 3 phases: registration, configuration, and
+submission. Registration subscribes to the deprecation messages and queues
+them up. Configuration specifies GitHub credentials and repository options.
+Finally, submission sends queued and future deprecation messages to GitHub.
+
+To generate an oauth token for configuration:
+
+```
+github-deprecation-auth
+```
+
+The generated token will have access to your private repositories and can
+create issues. You can [revoke the tokens
+here](https://github.com/settings/applications).
+
+
+### Rails 3
+
+With Rails 3, in `config/application.rb`, add the following line right after
+requiring boot.rb, and before requiring rails.
 
 ```ruby
 require File.expand_path('../boot', __FILE__)
@@ -28,7 +51,7 @@ require File.expand_path('../boot', __FILE__)
 require 'github/deprecation'
 ```
 
-Then add an initializer with:
+Add an initializer with:
 
 ```ruby
 GitHub::Deprecation.configure({
@@ -38,15 +61,9 @@ GitHub::Deprecation.configure({
 })
 ```
 
-To generate an oauth token:
+To disable github-deprecation in certain environments, call `GitHub::Deprecation.reset!`
 
-```
-github-deprecation-auth
-```
-
-The generated token will have access to your private repositories and can
-create issues. You can [revoke the tokens
-here](https://github.com/settings/applications).
+### General Ruby
 
 To use with any general Ruby project:
 
