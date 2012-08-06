@@ -14,6 +14,7 @@ module GitHub::Deprecation
       # fix values flattened by serialization
       event_params[1] = DateTime.parse(event_params[1])
       event_params[2] = DateTime.parse(event_params[2])
+      event_params.last.symbolize_keys!
 
       Reporter.new(options).submit(event_params)
     end
