@@ -5,6 +5,13 @@ require 'bundler/setup'
 require 'highline'
 require 'octokit'
 
+requested_scopes = ['repo']
+
+dev = ARGV.shift
+if dev && dev.strip == 'dev'
+  requested_scopes << 'delete_repo'
+end
+
 puts "I need your GitHub credentials to generate an access token."
 puts "This will not be stored and is only used to generate the access token."
 puts
@@ -16,9 +23,11 @@ password = console.ask("GitHub Password: ") {|q| q.echo = '*'}
 begin
   github = Octokit::Client.new(:login => username, :password => password)
   auth = github.create_authorization({
-    :scopes => ['repo'],
+    :scopes => requested_scopes,
     :note   => "Authorization for github-deprecation."
   })
+  puts
+  puts "Generated token with scopes: #{requested_scopes.join(', ')}"
   puts
   puts "Your access token is: #{auth.token}"
   puts

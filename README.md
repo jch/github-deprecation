@@ -84,6 +84,12 @@ If you're using Resque, this gem will submit issues in the background.
 
 ## Development
 
+Generate an access token that has 'repo', and 'delete_repo' access.
+
+```
+github-deprecation-auth dev
+```
+
 To run integration tests, you need to specify two environment variables:
 
 * `GH_LOGIN` - your github login
