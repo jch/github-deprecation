@@ -9,6 +9,8 @@ module GitHub
     autoload :Reporter,       'github/deprecation/reporter'
     autoload :ResqueReporter, 'github/deprecation/resque_reporter'
 
+    attr_accessor  :reporter
+
     @original_behavior ||= ActiveSupport::Deprecation.behavior
     DEFAULT_CONFIG     ||= {
       :labels => ['deprecations']
@@ -55,17 +57,25 @@ module GitHub
     def configure(options = {})
       self.config.merge!(options.symbolize_keys)
 
-      # Default reporter based on availability of resque
-      self.config[:reporter] ||= defined?(Resque) ? :resque_reporter : :reporter
-      reporter_klass = self.config[:reporter].to_s.camelize
-      self.config[:reporter_class] = GitHub::Deprecation.const_get(reporter_klass)
-
+      # Ensure required keys
       @configured = ([:login, :oauth_token, :repo] & self.config.keys).size == 3
 
-      self.config
+      # Default reporter based on availability of resque
+      self.config[:reporter] ||= defined?(Resque) ? :resque_reporter : :reporter
+      reporter_class = self.config[:reporter].to_s.camelize
+      reporter_class = GitHub::Deprecation.const_get(reporter_class)
+
+      # Verify reporter can access issues for repo
+      self.reporter = reporter_class.new(self.config)
+      unless self.reporter.has_access?
+        warn "couldn't access issues for #{self.config[:repo]}, check your configuration"
+        @configured = false
+      end
     rescue NameError => e
-      warn "unknown reporter #{self.config[:reporter]}"
+      warn "unknown reporter #{self.config[:reporter]}, check your configuration"
       @configured = false
+    ensure
+      self.config
     end
 
     def configured?
@@ -99,15 +109,13 @@ module GitHub
     # Submit any queued deprecations as issues. All future queued
     # deprecations are immediately submitted.
     def start_reporting!
-      return unless registered?
-      return warn("missing required config") unless configured?
+      return unless registered? && configured?
 
-      reporter_instance = self.config[:reporter_class].new(self.config)
       queue.start! do |e|
         begin
-          reporter_instance.submit_issue!(e)
+          self.reporter.submit_issue!(e)
         rescue => e
-          warn "error submitting issue: #{e.message}"
+          warn "error submitting issue: #{e.class} #{e.message}"
           e.backtrace.each {|line| $stderr.puts line}
           reset!
         end

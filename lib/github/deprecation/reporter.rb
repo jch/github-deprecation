@@ -56,6 +56,13 @@ module GitHub::Deprecation
       })
     end
 
+    def has_access?
+      client.list_issues(@options[:repo])
+      true
+    rescue => e
+      false
+    end
+
     # Shorten warnings and remove common stuff
     def normalize_title(warning)
       warning.

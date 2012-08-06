@@ -45,7 +45,7 @@ class GitHub::DeprecationTest < Test::Unit::TestCase
 
   def test_configure_reporter
     subject.configure(valid_config.merge({:reporter => :resque_reporter}))
-    assert_equal GitHub::Deprecation::ResqueReporter, subject.config[:reporter_class]
+    assert subject.reporter.is_a?(GitHub::Deprecation::ResqueReporter), 'is a resque reporter'
   end
 
   def test_configure_invalid_reporter
