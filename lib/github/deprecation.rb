@@ -107,6 +107,8 @@ module GitHub
     def start_reporting!
       return unless registered? && configured?
 
+      self.behavior = :notify
+
       queue.start! do |e|
         unless self.reporter.has_access?
           warn "couldn't access issues for #{self.config[:repo]}, check your configuration"
@@ -128,5 +130,9 @@ module GitHub
     end
   end
 end
+
+# Register as early as possible to catch more warnings. Warnings are enqueued
+# and sent after gem is configured.
+GitHub::Deprecation.register!
 
 require 'github/deprecation/railtie'
