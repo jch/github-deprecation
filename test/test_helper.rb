@@ -26,8 +26,29 @@ def valid_config(options = {})
   }.merge(options)
 end
 
-# Raises an exception when submitting an issue
+
 module GitHub::Deprecation
+  # Stub out access check in unit tests, unstub for integration tests
+  class Reporter
+    class << self
+      def stub_access!
+        alias_method :has_access?, :stubbed_has_access?
+      end
+
+      def unstub_access!
+        alias_method :has_access?, :unstubbed_has_access?
+      end
+    end
+
+    def stubbed_has_access?
+      true
+    end
+    alias_method :unstubbed_has_access?, :has_access?
+
+    self.stub_access!
+  end
+
+  # Raises an exception when submitting an issue
   class ErrorReporter < Reporter
     def submit_issue!(event_args)
       raise RuntimeError.new("Mock error")
@@ -44,6 +65,18 @@ module GitHub::Deprecation
     def submit_issue!(event_hash)
       self.class.events ||= []
       self.class.events << event_hash
+    end
+
+    def has_access?
+      true
+    end
+  end
+
+  module IntegrationHelper
+    extend ActiveSupport::Concern
+
+    included do
+      GitHub::Deprecation::Reporter.unstub_access!
     end
   end
 end
