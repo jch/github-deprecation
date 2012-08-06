@@ -67,10 +67,6 @@ module GitHub
 
       # Verify reporter can access issues for repo
       self.reporter = reporter_class.new(self.config)
-      unless self.reporter.has_access?
-        warn "couldn't access issues for #{self.config[:repo]}, check your configuration"
-        @configured = false
-      end
     rescue NameError => e
       warn "unknown reporter #{self.config[:reporter]}, check your configuration"
       @configured = false
@@ -112,6 +108,11 @@ module GitHub
       return unless registered? && configured?
 
       queue.start! do |e|
+        unless self.reporter.has_access?
+          warn "couldn't access issues for #{self.config[:repo]}, check your configuration"
+          reset!
+        end
+
         begin
           self.reporter.submit_issue!(e)
         rescue => e
