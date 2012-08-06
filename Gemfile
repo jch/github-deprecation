@@ -6,3 +6,7 @@ gemspec
 group :debug do
   gem 'debugger'
 end
+
+group :integration do
+  gem 'rails', '~> 3.2'
+end
