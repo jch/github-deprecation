@@ -117,7 +117,6 @@ module GitHub
           self.reporter.submit_issue!(e)
         rescue => e
           warn "error submitting issue: #{e.class} #{e.message}"
-          e.backtrace.each {|line| $stderr.puts line}
           reset!
         end
       end
