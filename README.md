@@ -18,7 +18,17 @@ Or install it yourself as:
 
 ## Usage
 
-With Rails 3, add an initializer with:
+Requiring github/deprecation as early as possible allows it to capture more
+deprecation warnings. With Rails 3, in `config/application.rb`, add the
+following line right after requiring boot.rb:
+
+```ruby
+require File.expand_path('../boot', __FILE__)
+
+require 'github/deprecation'
+```
+
+Then add an initializer with:
 
 ```ruby
 GitHub::Deprecation.configure({
@@ -61,6 +71,12 @@ To run integration tests, you need to specify two environment variables:
 
 * `GH_LOGIN` - your github login
 * `GH_OAUTH_TOKEN` - oauth access token with 'repo,delete_repo' scopes
+
+Then run:
+
+```
+rake test:integration
+```
 
 ## Contributing
 
